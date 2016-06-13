@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/pupil"
+        android:icon="@drawable/ic_group_black_24dp"
+        android:title="Учащимся" />
+    <item
+        android:id="@+id/teacher"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="Преподавателям" />
+</menu>
