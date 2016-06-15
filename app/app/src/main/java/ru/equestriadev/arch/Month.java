@@ -19,8 +19,23 @@ public class Month {
             "Декабрь"
     };
 
+    static String[] daylabels = {
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье"
+    };
+
     public static String getMouthNyNumber(int num)
     {
         return labels[num-1];
+    }
+
+    public static String getDatNyNumber(int num)
+    {
+        return daylabels[num-1];
     }
 }

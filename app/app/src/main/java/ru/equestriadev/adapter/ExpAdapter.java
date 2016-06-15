@@ -25,10 +25,11 @@ public class ExpAdapter extends BaseExpandableListAdapter {
 
     private Day day;
     private Context mContext;
-
-    public ExpAdapter(Context context, Day day) {
+    private boolean isPupil;
+    public ExpAdapter(Context context, Day day, boolean isPupil) {
         mContext = context;
         this.day = day;
+        this.isPupil=isPupil;
     }
 
     public int getChildrenCount(int groupPosition) {
@@ -76,8 +77,10 @@ public class ExpAdapter extends BaseExpandableListAdapter {
 
 
         TextView textGroup = (TextView) convertView.findViewById(R.id.title);
-        textGroup.setText(day.getGroups().get(groupPosition).getTitle());
-
+        if(isPupil)
+            textGroup.setText("Группа "+day.getGroups().get(groupPosition).getTitle());
+        else
+            textGroup.setText(day.getGroups().get(groupPosition).getTitle());
         final LikeButton button = (LikeButton) convertView.findViewById(R.id.fave);
         SharedPreferences myPrefs = mContext.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 

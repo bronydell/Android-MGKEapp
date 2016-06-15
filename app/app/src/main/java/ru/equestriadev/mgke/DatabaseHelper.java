@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
             + " string primary key, " + PUPIL_COLUMN
             + " text, " + TEACHER_COLUMN + " text);";
 
-    DatabaseHelper(Context context) {
+    public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -97,7 +97,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         Cursor cursor = getReadableDatabase().rawQuery(q, null);
 
-        if (cursor != null) {
+        if (cursor != null||cursor.getCount()>0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(DatabaseHelper.PUPIL_COLUMN));
         }

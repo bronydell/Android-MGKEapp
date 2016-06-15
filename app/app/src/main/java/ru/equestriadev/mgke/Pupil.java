@@ -1,14 +1,11 @@
 package ru.equestriadev.mgke;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,21 +16,18 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 
+import ru.equestriadev.netwerking.RequestDates;
+import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
@@ -89,9 +83,9 @@ public class Pupil extends Fragment {
                 setAdapter(day);
                 listView.onRestoreInstanceState(savedInstanceState.getParcelable("list"));
             } else
-                new PupilExecute().execute();
+                executeNetworking();
         } else {
-            new PupilExecute().execute();
+            executeNetworking();
         }
     }
 
@@ -135,6 +129,7 @@ public class Pupil extends Fragment {
     }
 
     public void setAdapter(Day day) {
+
         SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         if (day.getGroups() != null) {
             for (int i = 0; i < day.getGroups().size(); i++) {
@@ -146,9 +141,13 @@ public class Pupil extends Fragment {
                 Date dateStr = formatter.parse(day.getDate());
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(dateStr);
-                getActivity().setTitle("Учащиеся " + Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+                getActivity().setTitle("Учащиеся");
+                //if(getActivity().getActionBar()==null)
+                 //   Toast.makeText(getContext(), "WTF?", Toast.LENGTH_SHORT).show();
+                ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+                actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumber(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
             } catch (ParseException e) {
-                getActivity().setTitle("Учащиеся ???");
+                getActivity().setTitle("Учащиеся. ???");
                 e.printStackTrace();
             }
 
@@ -167,165 +166,31 @@ public class Pupil extends Fragment {
                     return 0;
                 }
             });
-            adapter = new ExpAdapter(getContext(), day);
+            adapter = new ExpAdapter(getContext(), day, true);
         }
         listView.setAdapter(adapter);
 
     }
 
-    private boolean isOnline() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            return cm.getActiveNetworkInfo().isConnectedOrConnecting();
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.event:
-                new PupilDates().execute();
+                RequestDates requestDates = new RequestDates();
+                requestDates.setPupilFragment(this);
+                requestDates.execute();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    class PupilExecute extends AsyncTask<String, Void, Void> {
 
-        String baseURL = "http://s1.al3xable.me/api/?method=getStudent";
-        Day nowDay;
-        boolean save = false;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            nowDay = new Day();
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            if (params.length > 0)
-                baseURL += "&date=" + params[0];
-            else
-                save = true;
-
-            if (isOnline()) {
-                nowDay = getOnline();
-            } else {
-                if (params.length > 0)
-                    nowDay = getOffline(params[0]);
-                else
-                    nowDay = getOffline("current");
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            Log.d("Debug", baseURL);
-            setAdapter(nowDay);
-        }
-
-        private Day getOnline() {
-            Day day = new Day();
-            try {
-                Gson gson = new Gson();
-                String feedback;
-                feedback = readUrl(baseURL);
-
-                JSONObject obj = new JSONObject(feedback);
-                if (obj.getInt("code") == 0) {
-                    day = gson.fromJson(obj.getJSONObject("data").toString(), Day.class);
-
-                        saveByDate(day.getDate(), day);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return day;
-        }
-
-        private Day getOffline(String date) {
-            Day day = new Day();
-            String dd = helper.getPupilByDate(date);
-            Gson gson = new Gson();
-            if (dd != null)
-                day = gson.fromJson(dd, Day.class);
-            return day;
-        }
-
-        private void saveByDate(String date, Day day) {
-            Gson gson = new Gson();
-            helper.putPupil(date, gson.toJson(day, Day.class));
-            if(save)
-                helper.putPupil("current", gson.toJson(day, Day.class));
-        }
-
-
-    }
-
-    class PupilDates extends AsyncTask<Void, Void, Void> {
-
-        String baseURL = "http://s1.al3xable.me/api/?method=getStudentDates";
-        List<String> days = new ArrayList<String>();
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (isOnline()) {
-                days = getOnline();
-            } else {
-                days = getOffline();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Выберите нужную дату");
-            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    new PupilExecute().execute(days.get(id));
-                }
-            };
-
-            builder.setItems(days.toArray(new CharSequence[days.size()]), listener);
-            AlertDialog alert = builder.create();
-
-            alert.show();
-        }
-
-        public List<String> getOffline() {
-            DatabaseHelper helper = new DatabaseHelper(getContext());
-            return helper.getAllDates();
-        }
-
-        public List<String> getOnline() {
-            try {
-                String responce = readUrl(baseURL);
-                JSONObject obj = new JSONObject(responce);
-                JSONArray arr = obj.getJSONObject("data").getJSONArray("dates");
-                List<String> objs = new ArrayList<String>();
-                for (int i = 0; i < arr.length(); i++)
-                    objs.add(arr.getString(i));
-                return objs;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
+    public void executeNetworking()
+    {
+        RequestPairs requestPairs = new RequestPairs();
+        requestPairs.setPupilFragment(this);
+        requestPairs.execute();
     }
 }

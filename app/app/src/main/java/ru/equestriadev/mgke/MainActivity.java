@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.widget.Toast;
@@ -33,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mNavController = getController(savedInstanceState);
 
-        //mNavController.switchTab(INDEX_EVENTS);
         mBottomBar = BottomBar.attach(this, savedInstanceState);
         mBottomBar.setItems(R.menu.bottom_menu);
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
@@ -95,9 +95,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static String getMonth(int month) {
-        return new DateFormatSymbols().getMonths()[month-1];
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
