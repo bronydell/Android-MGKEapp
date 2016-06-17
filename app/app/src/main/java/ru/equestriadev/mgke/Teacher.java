@@ -119,17 +119,19 @@ public class Teacher extends Fragment {
             for (int i = 0; i < day.getGroups().size(); i++) {
                 day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }
-
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date dateStr = formatter.parse(day.getDate());
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(dateStr);
-                getActivity().setTitle("Преподаватели");
-                ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-                actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumber(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
-            } catch (ParseException e) {
-                getActivity().setTitle("Преподаватели. ???");
+                if(actionBar!=null) {
+                    getActivity().setTitle("Преподаватели");
+                    actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumberMon(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
+                }
+                } catch (ParseException e) {
+                if(actionBar!=null)
+                    actionBar.setSubtitle("???");
                 e.printStackTrace();
             }
 

@@ -6,4 +6,7 @@
         android:icon="@drawable/ic_event"
         android:title="Календарь"
         app:showAsAction="always"/>
+    <item android:id="@+id/update"
+        android:title="Автообновления"
+        android:checkable="true" />
 </menu>

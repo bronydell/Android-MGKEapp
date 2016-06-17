@@ -106,23 +106,6 @@ public class Pupil extends Fragment {
         }
     }
 
-    public String readUrl(String urlString) throws Exception {
-        BufferedReader reader = null;
-        try {
-            URL url = new URL(urlString);
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuilder buffer = new StringBuilder();
-            int read;
-            char[] chars = new char[1024];
-            while ((read = reader.read(chars)) != -1)
-                buffer.append(chars, 0, read);
-
-            return buffer.toString();
-        } finally {
-            if (reader != null)
-                reader.close();
-        }
-    }
 
     public void onTop() {
         listView.smoothScrollToPosition(0);
@@ -135,19 +118,17 @@ public class Pupil extends Fragment {
             for (int i = 0; i < day.getGroups().size(); i++) {
                 day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }
-
+            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date dateStr = formatter.parse(day.getDate());
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(dateStr);
-                getActivity().setTitle("Учащиеся");
-                //if(getActivity().getActionBar()==null)
-                 //   Toast.makeText(getContext(), "WTF?", Toast.LENGTH_SHORT).show();
-                ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-                actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumber(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
+                if (actionBar!=null)
+                    actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumberMon(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
             } catch (ParseException e) {
-                getActivity().setTitle("Учащиеся. ???");
+                if (actionBar!=null)
+                    actionBar.setSubtitle("???");
                 e.printStackTrace();
             }
 

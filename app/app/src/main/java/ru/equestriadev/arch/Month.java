@@ -19,23 +19,54 @@ public class Month {
             "Декабрь"
     };
 
-    static String[] daylabels = {
+    static String[] daylabelsmon = {
             "Понедельник",
             "Вторник",
             "Среда",
             "Четверг",
             "Пятница",
             "Суббота",
-            "Воскресенье"
+            "Воскресение"
     };
 
+    static String[] daylabels = {
+            "Воскресение",
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота"
+    };
+
+    static String[] short_daylabels = {
+            "Вс",
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб"
+    };
     public static String getMouthNyNumber(int num)
     {
-        return labels[num-1];
+        return labels[num];
     }
 
     public static String getDatNyNumber(int num)
     {
         return daylabels[num-1];
     }
+
+    public static String getDatNyNumberMon(int num)
+    {
+        return daylabelsmon[num-1];
+    }
+
+    public static String getShortDate(int num)
+    {
+        return short_daylabels[num-1];
+    }
+
+
 }

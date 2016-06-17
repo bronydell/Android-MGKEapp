@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,10 +13,12 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import ru.equestriadev.datetimepicker.date.DatePickerDialog;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.Pupil;
 import ru.equestriadev.mgke.Teacher;
@@ -23,10 +26,10 @@ import ru.equestriadev.mgke.Teacher;
 /**
  * Created by Bronydell on 6/14/16.
  */
-public class RequestDates extends AsyncTask<Void, Void, Void> {
+public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePickerDialog.OnDateSetListener {
 
     String baseURL = "http://s1.al3xable.me/method/";
-    private List<String> days = new ArrayList<String>();
+    private List<Calendar> days = new ArrayList<Calendar>();
 
     private Context context;
     private Teacher teacher;
@@ -80,7 +83,19 @@ public class RequestDates extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+
+        final Calendar calendar = Calendar.getInstance();
+
+        final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
+        datePickerDialog.setFirstDayOfWeek(2);
+        datePickerDialog.setCloseOnSingleTapDay(false);
+        if(pupil!=null)
+            datePickerDialog.show(pupil.getFragmentManager(), "DATE_MANAGER");
+        else if(teacher!=null)
+            datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
+        datePickerDialog.setOnDateSetListener(this);
+       /*AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Выберите нужную дату");
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
@@ -90,63 +105,64 @@ public class RequestDates extends AsyncTask<Void, Void, Void> {
                     pairs.setTeacherFragment(teacher);
                 else
                     pairs.setPupilFragment(pupil);
-                try {
-                    Date dt = new SimpleDateFormat("dd.MM.yyyy").parse(days.get(id));
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    pairs.execute(dateFormat.format(dt));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                pairs.execute(days.get(id));
             }
         };
 
-        builder.setItems(days.toArray(new CharSequence[days.size()]), listener);
+        builder.setItems(formatter(days), listener);
         AlertDialog alert = builder.create();
 
-        alert.show();
+        alert.show();*/
     }
 
-    public List<String> getOffline()
+    public List<Calendar> getOffline()
     {
         DatabaseHelper helper = new DatabaseHelper(context);
 
-        List<String> objs = helper.getAllDates();
-        for (int i = 0; i < objs.size(); i++) {
-            Date dt = null;
-            try {
-                dt = new SimpleDateFormat("yyyy-MM-dd").parse(objs.get(i));
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                objs.remove(i);
-                objs.add(dateFormat.format(dt));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        if (objs.size() > 0) {
-            objs.remove(objs.size() - 1);
-            Collections.sort(objs);
-        }
+        List<Calendar> objs = helper.getAllDates(isPupil);
 
         return objs;
     }
 
-    public List<String> getOnline()
+
+
+    public List<Calendar> getOnline()
     {
         try {
             String response = NetworkMethods.readUrl(baseURL);
             JSONObject obj = new JSONObject(response);
             JSONArray arr = obj.getJSONObject("data").getJSONArray("dates");
-            List<String> objs = new ArrayList<String>();
+            List<Calendar> objs = new ArrayList<Calendar>();
             for (int i = 0; i < arr.length(); i++) {
-                Date dt = new SimpleDateFormat("yyyy-MM-dd").parse(arr.getString(i));
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-                objs.add(dateFormat.format(dt));
+                Calendar cal = Calendar.getInstance();
+                Date date;
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                date = format.parse(arr.getString(i));
+                cal.setTime(date);
+                objs.add(cal);
             }
-            Collections.sort(objs);
             return objs;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
+    @Override
+    public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
+        RequestPairs pairs = new RequestPairs();
+
+        if(!isPupil)
+            pairs.setTeacherFragment(teacher);
+        else
+            pairs.setPupilFragment(pupil);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        date.setDate(day);
+        date.setMonth(month);
+        date.setYear(year - 1900);
+        pairs.execute(format.format(date));
+    }
+
+
 }

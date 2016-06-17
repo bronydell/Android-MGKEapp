@@ -1,27 +1,33 @@
 package ru.equestriadev.mgke;
 
 
-import android.net.Uri;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.widget.Toast;
+import android.view.MenuItem;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
 
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.equestriadev.notify.UpdateService;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomBar mBottomBar;
     private FragNavController mNavController;
 
+    private Pupil pupilFragment;
+    private Teacher teacherFragment;
     //Better convention to properly name the indices what they are in your app
 
     private final int INDEX_STUDENT = FragNavController.TAB1;
@@ -32,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if(myPrefs.getBoolean("Auto", false))
+            startService(new Intent(this, UpdateService.class));
         mNavController = getController(savedInstanceState);
 
         mBottomBar = BottomBar.attach(this, savedInstanceState);
@@ -56,8 +65,10 @@ public class MainActivity extends AppCompatActivity {
                 switch(menuItemId)
                 {
                     case  R.id.teacher:
+                        teacherFragment.onTop();
                         break;
                     case  R.id.pupil:
+                        pupilFragment.onTop();
                         break;
                 }
             }
@@ -69,9 +80,10 @@ public class MainActivity extends AppCompatActivity {
     {
 
         List<Fragment> fragments = new ArrayList<>(3);
-
-        fragments.add(Pupil.newInstance());
-        fragments.add(Teacher.newInstance());
+        pupilFragment = Pupil.newInstance();
+        teacherFragment = Teacher.newInstance();
+        fragments.add(pupilFragment);
+        fragments.add(teacherFragment);
 
         return
                 new FragNavController(savedInstanceState, getSupportFragmentManager(), R.id.container, fragments);
@@ -81,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // Necessary to restore the BottomBar's state, otherwise we would
-        // lose the current tab on orientation change.
         mBottomBar.onSaveInstanceState(outState);
         mNavController.onSaveInstanceState(outState);
     }
@@ -97,8 +107,40 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // получим идентификатор выбранного пункта меню
+        int id = item.getItemId();
+        SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = myPrefs.edit();
+        // Операции для выбранного пункта меню
+        switch (id) {
+
+            case R.id.update:
+                if(item.isChecked()) {
+                    item.setChecked(false);
+                    stopService(new Intent(this, UpdateService.class));
+                }
+                else {
+                    item.setChecked(true);
+                    startService(new Intent(this, UpdateService.class));
+                }
+                editor.putBoolean("Auto", item.isChecked());
+                editor.commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
+        menu.findItem(R.id.update).setChecked(myPrefs.getBoolean("Auto", false));
+
         return super.onCreateOptionsMenu(menu);
     }
+
+
 }

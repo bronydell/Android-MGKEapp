@@ -21,6 +21,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
 
 
     private Teacher teacher;
+    private boolean isNeedToSave = true;
     private Pupil pupil;
     private Context context;
     private Day nowDay;
@@ -56,12 +57,17 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
 
     @Override
     protected Void doInBackground(String... params) {
-        if (params.length > 0)
+        if (params.length > 0) {
             baseURL += "&date=" + params[0];
+            isNeedToSave = false;
+        }
         if (isOnline()) {
             nowDay = getOnline();
         } else {
-            nowDay = getOffline();
+            if (params.length > 0)
+                nowDay = getOffline(params[0]);
+            else
+                nowDay = getOffline();
         }
 
         return null;
@@ -103,6 +109,21 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             dd = helper.getTeacherByDate("current");
         else
             dd = helper.getPupilByDate("current");
+        //Log.i("Offline", dd);
+        Gson gson = new Gson();
+        if (dd != null)
+            day = gson.fromJson(dd, Day.class);
+        return day;
+    }
+
+    private Day getOffline(String date) {
+        Day day = new Day();
+        String dd;
+        if(!isPupil)
+            dd = helper.getTeacherByDate(date);
+        else
+            dd = helper.getPupilByDate(date);
+        //Log.i("Offline", dd);
         Gson gson = new Gson();
         if (dd != null)
             day = gson.fromJson(dd, Day.class);
@@ -113,11 +134,13 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         Gson gson = new Gson();
         if(!isPupil) {
             helper.putTeacher(date, gson.toJson(day, Day.class));
-            helper.putTeacher("current", gson.toJson(day, Day.class));
+            if(isNeedToSave)
+                helper.putTeacher("current", gson.toJson(day, Day.class));
         }
         else {
             helper.putPupil(date, gson.toJson(day, Day.class));
-            helper.putPupil("current", gson.toJson(day, Day.class));
+            if(isNeedToSave)
+                helper.putPupil("current", gson.toJson(day, Day.class));
         }
     }
 

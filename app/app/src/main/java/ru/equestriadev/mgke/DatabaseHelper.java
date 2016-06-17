@@ -13,7 +13,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
@@ -49,37 +53,47 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
     public void putAll(String date, String pupil, String teacher) {
         ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
         values.put(DATE_COLUMN, date);
         values.put(PUPIL_COLUMN, pupil);
         values.put(TEACHER_COLUMN, teacher);
 
-        getWritableDatabase().insertWithOnConflict(DATABASE_TABLE, null, values, getWritableDatabase().CONFLICT_REPLACE);
-        getWritableDatabase().close();
+        int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+        }
+        db.close();
     }
 
     public void putPupil(String date, String pupil) {
         ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
         values.put(DATE_COLUMN, date);
         values.put(PUPIL_COLUMN, pupil);
-        //values.put(TEACHER_COLUMN, teacher);
-
-        getWritableDatabase().insertWithOnConflict(DATABASE_TABLE, null, values, getWritableDatabase().CONFLICT_REPLACE);
-        getWritableDatabase().close();
+        int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+        }
+        db.close();
     }
 
     public void putTeacher(String date, String teacher) {
         ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
         values.put(DATE_COLUMN, date);
         //values.put(PUPIL_COLUMN, pupil);
         values.put(TEACHER_COLUMN, teacher);
 
-        getWritableDatabase().insertWithOnConflict(DATABASE_TABLE, null, values, getWritableDatabase().CONFLICT_REPLACE);
-        getWritableDatabase().close();
+        int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+        }
+        db.close();
     }
 
     public String getTeacherByDate(String date)
     {
-        String q="SELECT * FROM "+DATABASE_TABLE+" WHERE "+DATE_COLUMN+"='" + date +"';";
+        String q="SELECT * FROM "+DATABASE_TABLE+" WHERE "+DATE_COLUMN+"='" + date+"';";
 
         Cursor cursor = getReadableDatabase().rawQuery(q, null);
 
@@ -97,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         Cursor cursor = getReadableDatabase().rawQuery(q, null);
 
-        if (cursor != null||cursor.getCount()>0) {
+        if (cursor != null&&cursor.getCount()>0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(DatabaseHelper.PUPIL_COLUMN));
         }
@@ -107,26 +121,47 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
     }
 
 
-    public List<String> getAllDates(){
-        List<String> results = new ArrayList<String>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        // Select All Query
-        String selectQuery = "select * from " + DATABASE_TABLE;
+    public List<Calendar> getAllDates(boolean isPupil){
 
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery;
+        // Select All Dates
+        if(isPupil)
+            selectQuery = "select * from " + DATABASE_TABLE +" where " +PUPIL_COLUMN + " is not null";
+        else
+            selectQuery = "select * from " + DATABASE_TABLE +" where " +TEACHER_COLUMN + " is not null";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                results.add(cursor.getString(0));
-            } while (cursor.moveToNext());
-        }
+        List<Calendar> result = parseDates(cursor);
 
         cursor.close();
         db.close();
 
-        return results;
+        return result;
     }
+
+    public List<Calendar>parseDates(Cursor cursor)
+    {
+        List<Calendar> results = new ArrayList<Calendar>();
+        if (cursor.moveToFirst()) {
+            do {
+                if(!cursor.getString(0).equals("current"))
+                    try {
+                        Calendar cal = Calendar.getInstance();
+                        Date date;
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                        date = format.parse(cursor.getString(0));
+                        cal.setTime(date);
+                        results.add(cal);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return  results;
+    }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
