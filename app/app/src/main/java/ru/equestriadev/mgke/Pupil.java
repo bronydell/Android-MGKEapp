@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -39,6 +40,8 @@ public class Pupil extends Fragment {
     ExpAdapter adapter;
     ExpandableListView listView;
     DatabaseHelper helper;
+    SwipeRefreshLayout refresher;
+
 
 
     public Pupil() {
@@ -62,6 +65,14 @@ public class Pupil extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //Init ListView
         listView = (ExpandableListView) getView().findViewById(R.id.pupilList);
+        refresher = (SwipeRefreshLayout) getView().findViewById(R.id.refreshPupil);
+        refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresher.setRefreshing(true);
+                executeNetworking(true);
+            }
+        });
         helper = new DatabaseHelper(getContext());
         //Cool feature
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -74,6 +85,7 @@ public class Pupil extends Fragment {
                 listView.smoothScrollByOffset(offset);
             }
         });
+
         getActivity().setTitle("Учащиеся");
         //Update content!
         if (savedInstanceState != null) {
@@ -83,9 +95,9 @@ public class Pupil extends Fragment {
                 setAdapter(day);
                 listView.onRestoreInstanceState(savedInstanceState.getParcelable("list"));
             } else
-                executeNetworking();
+                executeNetworking(false);
         } else {
-            executeNetworking();
+            executeNetworking(false);
         }
     }
 
@@ -112,9 +124,10 @@ public class Pupil extends Fragment {
     }
 
     public void setAdapter(Day day) {
-
-        SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if(refresher!=null)
+            refresher.setRefreshing(false);
         if (day.getGroups() != null) {
+                SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
             for (int i = 0; i < day.getGroups().size(); i++) {
                 day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }
@@ -149,6 +162,11 @@ public class Pupil extends Fragment {
             });
             adapter = new ExpAdapter(getContext(), day, true);
         }
+        else
+        {
+
+            Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
+        }
         listView.setAdapter(adapter);
 
     }
@@ -168,10 +186,14 @@ public class Pupil extends Fragment {
     }
 
 
-    public void executeNetworking()
+    public void executeNetworking(boolean forsed)
     {
+        if(refresher!=null)
+            refresher.setRefreshing(true);
+
         RequestPairs requestPairs = new RequestPairs();
         requestPairs.setPupilFragment(this);
+        requestPairs.setForced(forsed);
         requestPairs.execute();
     }
 }

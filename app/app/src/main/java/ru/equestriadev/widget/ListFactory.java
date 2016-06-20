@@ -83,8 +83,10 @@ public class ListFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-
-        return group.getLessons().size();
+       if(group.getLessons()!=null)
+           return group.getLessons().size();
+       else
+           return 0;
     }
 
     @Override

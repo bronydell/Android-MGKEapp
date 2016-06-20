@@ -1,13 +1,17 @@
 package ru.equestriadev.netwerking;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
+
+import java.util.Date;
 
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.mgke.DatabaseHelper;
@@ -30,7 +34,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
     String baseURL = "http://s1.al3xable.me/method/";
 
     private boolean isPupil;
-
+    private boolean isForced = true;
     public void setTeacherFragment(Teacher teacher)
     {
         this.teacher = teacher;
@@ -47,6 +51,10 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         isPupil = true;
     }
 
+    public void setForced(boolean forced)
+    {
+        isForced=forced;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -61,7 +69,8 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             baseURL += "&date=" + params[0];
             isNeedToSave = false;
         }
-        if (isOnline()) {
+        //If last update was 1 hours ago or later
+        if ((isForced && isOnline()) || (isOnline() && getUpdate() + 1000 * 60 * 60 < getCurrent())) {
             nowDay = getOnline();
         } else {
             if (params.length > 0)
@@ -86,6 +95,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
 
     private Day getOnline() {
         Day day = new Day();
+        Log.i("Netwerking" , "Online");
         try {
             Gson gson = new Gson();
             String feedback;
@@ -99,10 +109,12 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        UpdateTime();
         return day;
     }
 
-    private Day getOffline() {
+    public Day getOffline() {
+        Log.i("Netwerking" , "Offline");
         Day day = new Day();
         String dd;
         if(!isPupil)
@@ -152,6 +164,39 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public long getCurrent()
+    {
+        //getting the current time in milliseconds, and creating a Date object from it:
+        Date date = new Date(System.currentTimeMillis()); //or simply new Date();
+        //converting it back to a milliseconds representation:
+        return date.getTime();
+    }
+
+    public void UpdateTime()
+    {
+        //getting the current time in milliseconds, and creating a Date object from it:
+        Date date = new Date(System.currentTimeMillis()); //or simply new Date();
+        //converting it back to a milliseconds representation:
+        long millis = date.getTime();
+        SharedPreferences prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if(isPupil)
+            editor.putLong("time_teacher", date.getTime());
+        else
+            editor.putLong("time_student", date.getTime());
+        editor.commit();
+    }
+
+    public long getUpdate()
+    {
+        SharedPreferences prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if(isPupil)
+            return prefs.getLong("time_teacher", 0);
+        else
+            return prefs.getLong("time_student", 0);
     }
 
 }

@@ -83,36 +83,24 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
+        Calendar calendar = Calendar.getInstance();
+        if(days.size()>0) {
+            calendar = days.get(days.size() - 1);
 
+            final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
 
-        final Calendar calendar = Calendar.getInstance();
-
-        final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
-        datePickerDialog.setFirstDayOfWeek(2);
-        datePickerDialog.setCloseOnSingleTapDay(false);
-        if(pupil!=null)
-            datePickerDialog.show(pupil.getFragmentManager(), "DATE_MANAGER");
-        else if(teacher!=null)
-            datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
-        datePickerDialog.setOnDateSetListener(this);
-       /*AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Выберите нужную дату");
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                RequestPairs pairs = new RequestPairs();
-                if(!isPupil)
-                    pairs.setTeacherFragment(teacher);
-                else
-                    pairs.setPupilFragment(pupil);
-                pairs.execute(days.get(id));
-            }
-        };
-
-        builder.setItems(formatter(days), listener);
-        AlertDialog alert = builder.create();
-
-        alert.show();*/
+            datePickerDialog.setFirstDayOfWeek(2);
+            datePickerDialog.setCloseOnSingleTapDay(false);
+            if (pupil != null)
+                datePickerDialog.show(pupil.getFragmentManager(), "DATE_MANAGER");
+            else if (teacher != null)
+                datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
+            datePickerDialog.setOnDateSetListener(this);
+        }
+        else
+        {
+            Toast.makeText(context, "Нет доступных дат. Включите интернет!", Toast.LENGTH_LONG).show();
+        }
     }
 
     public List<Calendar> getOffline()

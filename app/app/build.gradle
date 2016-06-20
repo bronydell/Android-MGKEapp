@@ -8,8 +8,8 @@ android {
         applicationId "ru.equestriadev.mgke"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 19
+        versionName "3.0.1 BETA"
     }
     buildTypes {
         release {

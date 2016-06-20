@@ -97,7 +97,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         Cursor cursor = getReadableDatabase().rawQuery(q, null);
 
-        if (cursor != null) {
+        if (cursor != null&&cursor.getCount()>0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(DatabaseHelper.TEACHER_COLUMN));
         }
