@@ -1,6 +1,9 @@
 package ru.equestriadev.netwerking;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
@@ -17,6 +20,7 @@ import ru.equestriadev.arch.Day;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.Pupil;
 import ru.equestriadev.mgke.Teacher;
+import ru.equestriadev.widget.HomeWidget;
 
 /**
  * Created by Bronydell on 6/14/16.
@@ -95,7 +99,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
 
     private Day getOnline() {
         Day day = new Day();
-        Log.i("Netwerking" , "Online");
+        Log.i("Netwerking", "Online");
         try {
             Gson gson = new Gson();
             String feedback;
@@ -105,6 +109,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             if (obj.getInt("code") == 0) {
                 day = gson.fromJson(obj.getJSONObject("data").toString(), Day.class);
                 saveByDate(day.getDate(), day);
+                updateWidget();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -199,4 +204,11 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             return prefs.getLong("time_student", 0);
     }
 
+    public void updateWidget()
+    {
+        if(pupil!=null)
+            pupil.updateWidgets();
+        else if(teacher!=null)
+            teacher.updateWidgets();
+    }
 }

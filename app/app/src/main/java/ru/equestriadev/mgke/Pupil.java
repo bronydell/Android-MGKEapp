@@ -1,6 +1,9 @@
 package ru.equestriadev.mgke;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,6 +36,7 @@ import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Month;
+import ru.equestriadev.widget.HomeWidget;
 
 
 public class Pupil extends Fragment {
@@ -186,14 +190,22 @@ public class Pupil extends Fragment {
     }
 
 
-    public void executeNetworking(boolean forsed)
+    public void executeNetworking(boolean forced)
     {
         if(refresher!=null)
             refresher.setRefreshing(true);
 
         RequestPairs requestPairs = new RequestPairs();
         requestPairs.setPupilFragment(this);
-        requestPairs.setForced(forsed);
+        requestPairs.setForced(forced);
         requestPairs.execute();
+    }
+
+    public void updateWidgets(){
+        Intent intent = new Intent(getContext(), HomeWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getActivity().getApplication()).getAppWidgetIds(new ComponentName(getActivity().getApplication(), HomeWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        getContext().sendBroadcast(intent);
     }
 }

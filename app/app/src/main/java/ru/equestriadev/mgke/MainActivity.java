@@ -1,16 +1,23 @@
 package ru.equestriadev.mgke;
 
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
@@ -34,10 +41,13 @@ public class MainActivity extends AppCompatActivity {
     private final int INDEX_TEACHER = FragNavController.TAB2;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //new IntroductionBuilder(this).withSlides(generateSlides()).introduceMyself();
         SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         if(myPrefs.getBoolean("Auto", false))
             startService(new Intent(this, UpdateService.class));
@@ -127,10 +137,31 @@ public class MainActivity extends AppCompatActivity {
                 editor.putBoolean("Auto", item.isChecked());
                 editor.commit();
                 return true;
+            case R.id.browse:
+
+                wtf();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+   /* private List<Slide> generateSlides() {
+        List<Slide> result = new ArrayList<>();
+
+        result.add(new Slide().withTitle("Удобный просмотр расписание").
+                withDescription("Мы постарались над тем, что бы вам было удобно смотреть расписание, поэтому мы добавили функцию просмотра ").withColorResource(R.color.colorPrimary)
+                .withImage(R.drawable.ic_person_black_24dp));
+        result.add(new Slide().withTitle("Расписание из прошлого")
+                .withDescription("Возможность смотреть расписание, которое было сохранено у нас на серверах или у вас на телефоне")
+                .withColorResource(R.color.colorPrimary)
+                .withImage(R.drawable.ic_group_black_24dp));
+        result.add(new Slide().withTitle("Автообновления")
+                .withOption(new Option("Включить автообновление?", false))
+                .withColorResource(R.color.colorPrimary).withImage(R.drawable.ic_event));
+
+        return result;
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -140,6 +171,39 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(R.id.update).setChecked(myPrefs.getBoolean("Auto", false));
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    public void wtf()
+    {
+        final CharSequence[] items = {
+                "Открыть расписание на день(Кнорина)",
+                "Открыть расписание на день(Казинца)",
+                "Открыть расписание на день для преподавателей",
+                "Открыть расписание на неделю(Кнорина)",
+                "Открыть расписание на неделю(Казинца)",
+                "Открыть расписание на неделю для преподавателей"
+        };
+        final String[] url = {
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3841",
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3831",
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3821",
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3791",
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3781",
+                "http://mgke.minsk.edu.by/ru/main.aspx?guid=3811"
+
+        };
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Что открываем?");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                Intent intent= new Intent(Intent.ACTION_VIEW,Uri.parse(url[item]));
+                startActivity(intent);
+
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
 

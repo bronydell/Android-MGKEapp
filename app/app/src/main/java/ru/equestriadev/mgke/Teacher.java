@@ -1,6 +1,9 @@
 package ru.equestriadev.mgke;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -31,6 +34,7 @@ import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Month;
+import ru.equestriadev.widget.HomeWidget;
 
 
 public class Teacher extends Fragment {
@@ -178,6 +182,13 @@ public class Teacher extends Fragment {
     }
 
 
+    public void updateWidgets(){
+        Intent intent = new Intent(getContext(), HomeWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getActivity().getApplication()).getAppWidgetIds(new ComponentName(getActivity().getApplication(), HomeWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        getContext().sendBroadcast(intent);
+    }
 
 
     @Override

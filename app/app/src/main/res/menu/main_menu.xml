@@ -9,4 +9,6 @@
     <item android:id="@+id/update"
         android:title="Автообновления"
         android:checkable="true" />
+    <item android:id="@+id/browse"
+        android:title="Открыть сайт с расписанием"/>
 </menu>
