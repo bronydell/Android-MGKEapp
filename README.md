@@ -1,1 +1,0 @@
-# MGKE_Android_App
