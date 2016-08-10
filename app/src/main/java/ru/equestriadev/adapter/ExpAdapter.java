@@ -6,8 +6,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.idunnololz.widgets.AnimatedExpandableListView;
@@ -18,6 +16,7 @@ import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Lesson;
 import ru.equestriadev.mgke.R;
+import ru.equestriadev.parsing.Expiriments;
 
 /**
  * Created by Bronydell on 6/8/16.
@@ -121,7 +120,8 @@ public class ExpAdapter extends AnimatedExpandableListView.AnimatedExpandableLis
         }
         TextView textChild = (TextView) convertView.findViewById(R.id.textChild);
         Lesson lesson = day.getGroups().get(groupPosition).getLessons().get(childPosition);
-        textChild.setText(Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + lesson.getLesson() + " в кабинете(кабинетах): <b>" + lesson.getAudience() + "</b>"));
+        Expiriments ex = new Expiriments();
+        textChild.setText(Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + ex.ParseSubGroups(lesson.getLesson(), lesson.getAudience())));
 
         return convertView;
     }
