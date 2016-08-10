@@ -8,8 +8,8 @@ android {
         applicationId "ru.equestriadev.mgke"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 20
-        versionName "3.0.2 BETA"
+        versionCode 21
+        versionName "3.0.3 Pre-release"
     }
     buildTypes {
         release {
@@ -38,8 +38,5 @@ dependencies {
     compile 'com.yandex.android:mobmetricalib:2.42'
     compile 'com.android.support:design:23.3.0'
     compile 'com.nineoldandroids:library:2.4.0'
-    /*compile ('com.github.rubengees:introduction:1.3.2@aar'){
-            transitive = true;
-        }*/
     compile project(':Expander')
 }
