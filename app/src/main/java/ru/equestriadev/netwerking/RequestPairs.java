@@ -1,13 +1,9 @@
 package ru.equestriadev.netwerking;
 
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -20,7 +16,6 @@ import ru.equestriadev.arch.Day;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.Pupil;
 import ru.equestriadev.mgke.Teacher;
-import ru.equestriadev.widget.HomeWidget;
 
 /**
  * Created by Bronydell on 6/14/16.
@@ -28,15 +23,13 @@ import ru.equestriadev.widget.HomeWidget;
 public class RequestPairs extends AsyncTask<String, Void, Void> {
 
 
+    String baseURL = "http://s1.al3xable.me/method/";
     private Teacher teacher;
     private boolean isNeedToSave = true;
     private Pupil pupil;
     private Context context;
     private Day nowDay;
     private DatabaseHelper helper;
-
-    String baseURL = "http://s1.al3xable.me/method/";
-
     private boolean isPupil;
     private boolean isForced = true;
     public void setTeacherFragment(Teacher teacher)
@@ -90,7 +83,6 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
 
-        Log.d("Debug", baseURL);
         if(isPupil)
             pupil.setAdapter(nowDay);
         else
@@ -100,7 +92,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
 
     private Day getOnline() {
         Day day = new Day();
-        Log.i("Netwerking", "Online");
+        Log.i("Netwerking", "Online. API URL: " + baseURL);
         try {
             Gson gson = new Gson();
             String feedback;
@@ -126,7 +118,6 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             dd = helper.getTeacherByDate("current");
         else
             dd = helper.getPupilByDate("current");
-        //Log.i("Offline", dd);
         Gson gson = new Gson();
         if (dd != null)
             day = gson.fromJson(dd, Day.class);
@@ -140,7 +131,6 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             dd = helper.getTeacherByDate(date);
         else
             dd = helper.getPupilByDate(date);
-        //Log.i("Offline", dd);
         Gson gson = new Gson();
         if (dd != null)
             day = gson.fromJson(dd, Day.class);

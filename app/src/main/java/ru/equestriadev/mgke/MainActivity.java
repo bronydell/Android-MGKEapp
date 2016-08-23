@@ -2,7 +2,6 @@ package ru.equestriadev.mgke;
 
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,21 +11,16 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.transition.Slide;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnMenuTabClickListener;
+import com.roughike.bottombar.OnTabReselectListener;
+import com.roughike.bottombar.OnTabSelectListener;
 import com.yandex.metrica.YandexMetrica;
 
 import java.util.ArrayList;
@@ -37,41 +31,42 @@ import ru.equestriadev.notify.UpdateService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomBar mBottomBar;
-    private FragNavController mNavController;
-
-    private Pupil pupilFragment;
-    private Teacher teacherFragment;
-    //Better convention to properly name the indices what they are in your app
-
     private final int INDEX_STUDENT = FragNavController.TAB1;
     private final int INDEX_TEACHER = FragNavController.TAB2;
-
-
+    private BottomBar mBottomBar;
+    private FragNavController mNavController;
+    private Pupil pupilFragment;
+    private Teacher teacherFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Инициализация AppMetrica SDK
+        // Initialize AppMetrica SDK
         YandexMetrica.activate(getApplicationContext(), "10b73f7b-e0f2-49dd-b27f-545687ea021e");
-        // Отслеживание активности пользователей
+        // User tracking
         YandexMetrica.enableActivityAutoTracking(getApplication());
-        //new IntroductionBuilder(this).withSlides(generateSlides()).introduceMyself();
         SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
         final SharedPreferences.Editor editor = myPrefs.edit();
+
         if(myPrefs.getBoolean("Auto", false))
             startService(new Intent(this, UpdateService.class));
-        mNavController = getController(savedInstanceState);
 
-        mBottomBar = BottomBar.attach(this, savedInstanceState);
-        mBottomBar.setItems(R.menu.bottom_menu);
+        mNavController = getController(savedInstanceState);
+        mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
+        if (savedInstanceState != null) {
+            mBottomBar.onRestoreInstanceState(savedInstanceState.getParcelable("BottomSaver"));
+        }
         if(myPrefs.getInt("State", 0)==1&&mBottomBar.getCurrentTabPosition()!=1)
-            mBottomBar.selectTabAtPosition(1, false);
-        mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
+            mBottomBar.selectTabAtPosition(1);
+
+        mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+            //Tab clicker listiner
             @Override
-            public void onMenuTabSelected(@IdRes int menuItemId) {
-                switch(menuItemId)
+            public void onTabSelected(@IdRes int tabId) {
+                switch (tabId)
                 {
 
                     case  R.id.teacher:
@@ -86,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-
+        });
+        mBottomBar.setOnTabReselectListener(new OnTabReselectListener() {
             @Override
-            public void onMenuTabReSelected(@IdRes int menuItemId) {
-
-                switch(menuItemId)
+            public void onTabReSelected(@IdRes int tabId) {
+                switch (tabId)
                 {
                     case  R.id.teacher:
                         if(teacherFragment!=null)
@@ -124,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        mBottomBar.onSaveInstanceState(outState);
+        outState.putParcelable("BottomSaver", mBottomBar.onSaveInstanceState());
         mNavController.onSaveInstanceState(outState);
     }
     @Override

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<tabs>
+    <tab
+        icon="@drawable/ic_group_black_24dp"
+        id="@+id/pupil"
+        title="Учащимся" />
+    <tab
+        icon="@drawable/ic_person_black_24dp"
+        id="@+id/teacher"
+        title="Преподавателям" />
+</tabs>
