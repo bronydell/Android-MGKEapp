@@ -60,7 +60,7 @@ This application is tracking updates of schedule on college site and shows it in
 * [LikeButton by jd-alexander](https://github.com/jd-alexander/LikeButton)
 * [Butterknife by JakeWharton](http://jakewharton.github.io/butterknife/)
 * [Mobmetricalib by Yandex](https://tech.yandex.ru/metrica-mobile-sdk/)
-* [Material-calendarview by Prolificinteractive(Strongly modified)](https://github.com/prolificinteractive/material-calendarview)
+* [DateTimePicker by flavienlaurent(Strongly modified)](https://github.com/flavienlaurent/datetimepicker)
 * [AnimatedExpandableListView by idunnololz(Restructed and optimized)](https://github.com/idunnololz/AnimatedExpandableListView)
 
 # Лицензия
