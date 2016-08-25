@@ -1,8 +1,6 @@
 package ru.equestriadev.netwerking;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -10,11 +8,9 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -105,10 +101,11 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
 
     public List<Calendar> getOffline()
     {
-        DatabaseHelper helper = new DatabaseHelper(context);
+        DatabaseHelper helper = DatabaseHelper.getInstance(context);
 
         List<Calendar> objs = helper.getAllDates(isPupil);
 
+        helper.close();
         return objs;
     }
 

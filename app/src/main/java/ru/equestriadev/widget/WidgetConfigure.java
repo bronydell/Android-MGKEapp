@@ -8,20 +8,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.mgke.DatabaseHelper;
-import ru.equestriadev.netwerking.RequestPairs;
 
 /**
  * Created by Bronydell on 6/15/16.
@@ -52,7 +47,7 @@ public class WidgetConfigure extends Activity {
     private void makeAChoose()
     {
         final List<String> titles = new ArrayList<>();
-        DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+        DatabaseHelper helper = DatabaseHelper.getInstance(getApplicationContext());
         Day doomsDay;
         String result;
         Gson gson = new Gson();
@@ -109,11 +104,14 @@ public class WidgetConfigure extends Activity {
             AlertDialog alert = builder.create();
 
             alert.show();
+
         }
         else
         {
             Toast.makeText(getApplicationContext(), "Что-то пошло не так", Toast.LENGTH_SHORT).show();
         }
+        if (helper != null)
+            helper.close();
     }
 
     private void makeAWish()

@@ -36,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
             + DATABASE_TABLE + " (" + DATE_COLUMN
             + " string primary key, " + PUPIL_COLUMN
             + " text, " + TEACHER_COLUMN + " text);";
-
+    private static DatabaseHelper mInstance = null;
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -51,6 +51,17 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
         super(context, name, factory, version, errorHandler);
     }
 
+    public static DatabaseHelper getInstance(Context ctx) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (mInstance == null) {
+            mInstance = new DatabaseHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
     public void putAll(String date, String pupil, String teacher) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = getWritableDatabase();
@@ -60,7 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
         if (id == -1) {
-            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+            db.update(DATABASE_TABLE, values, DATE_COLUMN + "=?", new String[]{date});  // number 1 is the _id here, update to variable for your code
         }
         db.close();
     }
@@ -72,7 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
         values.put(PUPIL_COLUMN, pupil);
         int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
         if (id == -1) {
-            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+            db.update(DATABASE_TABLE, values, DATE_COLUMN + "=?", new String[]{date});  // number 1 is the _id here, update to variable for your code
         }
         db.close();
     }
@@ -86,50 +97,51 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
         int id = (int) db.insertWithOnConflict(DATABASE_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
         if (id == -1) {
-            db.update(DATABASE_TABLE, values, DATE_COLUMN+"=?", new String[] {date});  // number 1 is the _id here, update to variable for your code
+            db.update(DATABASE_TABLE, values, DATE_COLUMN + "=?", new String[]{date});  // number 1 is the _id here, update to variable for your code
         }
         db.close();
     }
 
-    public String getTeacherByDate(String date)
-    {
-        String q="SELECT * FROM "+DATABASE_TABLE+" WHERE "+DATE_COLUMN+"='" + date+"';";
+    public String getTeacherByDate(String date) {
+        String q = "SELECT * FROM " + DATABASE_TABLE + " WHERE " + DATE_COLUMN + "='" + date + "';";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(q, null);
 
-        Cursor cursor = getReadableDatabase().rawQuery(q, null);
-
-        if (cursor != null&&cursor.getCount()>0) {
+        if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(DatabaseHelper.TEACHER_COLUMN));
         }
         cursor.close();
+        db.close();
         return null;
     }
 
-    public String getPupilByDate(String date)
-    {
-        String q="SELECT * FROM "+DATABASE_TABLE+" WHERE "+DATE_COLUMN+"='" + date+"';";
+    public String getPupilByDate(String date) {
+        String q = "SELECT * FROM " + DATABASE_TABLE + " WHERE " + DATE_COLUMN + "='" + date + "';";
 
-        Cursor cursor = getReadableDatabase().rawQuery(q, null);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(q, null);
 
-        if (cursor != null&&cursor.getCount()>0) {
+        if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(DatabaseHelper.PUPIL_COLUMN));
         }
 
         cursor.close();
+        db.close();
         return null;
     }
 
 
-    public List<Calendar> getAllDates(boolean isPupil){
+    public List<Calendar> getAllDates(boolean isPupil) {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery;
         // Select All Dates
-        if(isPupil)
-            selectQuery = "select * from " + DATABASE_TABLE +" where " +PUPIL_COLUMN + " is not null";
+        if (isPupil)
+            selectQuery = "select * from " + DATABASE_TABLE + " where " + PUPIL_COLUMN + " is not null";
         else
-            selectQuery = "select * from " + DATABASE_TABLE +" where " +TEACHER_COLUMN + " is not null";
+            selectQuery = "select * from " + DATABASE_TABLE + " where " + TEACHER_COLUMN + " is not null";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         List<Calendar> result = parseDates(cursor);
@@ -140,12 +152,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
         return result;
     }
 
-    public List<Calendar>parseDates(Cursor cursor)
-    {
+    public List<Calendar> parseDates(Cursor cursor) {
         List<Calendar> results = new ArrayList<Calendar>();
         if (cursor.moveToFirst()) {
             do {
-                if(!cursor.getString(0).equals("current"))
+                if (!cursor.getString(0).equals("current"))
                     try {
                         Calendar cal = Calendar.getInstance();
                         Date date;
@@ -159,7 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        return  results;
+        return results;
     }
 
 

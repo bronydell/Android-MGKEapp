@@ -1,6 +1,5 @@
 package ru.equestriadev.notify;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -17,9 +15,7 @@ import org.json.JSONObject;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.MainActivity;
-import ru.equestriadev.mgke.Pupil;
 import ru.equestriadev.mgke.R;
-import ru.equestriadev.mgke.Teacher;
 import ru.equestriadev.netwerking.NetworkMethods;
 
 /**
@@ -28,12 +24,10 @@ import ru.equestriadev.netwerking.NetworkMethods;
 public class NetworkFetch extends AsyncTask<String, Void, Void> {
 
 
+    String baseURL = "http://s1.al3xable.me/method/";
     private Context context;
     private DatabaseHelper helper;
     private boolean isUpdated = false;
-    String baseURL = "http://s1.al3xable.me/method/";
-
-
 
     public void setContext(Context context)
     {
@@ -43,7 +37,7 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        helper = new DatabaseHelper(context);
+        helper = DatabaseHelper.getInstance(context);
 
     }
 
@@ -64,6 +58,8 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
         {
             addNotification();
         }
+        if (helper != null)
+            helper.close();
     }
 
     private Day getOnline(boolean isPupil) {

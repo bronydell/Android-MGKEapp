@@ -11,6 +11,8 @@ import android.widget.RemoteViewsService;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Lesson;
@@ -27,53 +29,52 @@ public class ListFactory implements RemoteViewsService.RemoteViewsFactory {
     int widgetID;
 
 
-    ListFactory(Context context, Intent intent)
-    {
-        this.context=context;
+    ListFactory(Context context, Intent intent) {
+        this.context = context;
         updateContent();
         widgetID = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
 
 
-        Log.i("Info", widgetID+" idid");
+        Log.i("Info", widgetID + " idid");
     }
+
     @Override
     public void onCreate() {
     }
 
     @Override
     public void onDataSetChanged() {
-        //?
-
-       updateContent();
-
+        updateContent();
     }
 
-    public void updateContent()
-    {
+    public void updateContent() {
         SharedPreferences prefs = context.getSharedPreferences("widgets", 0);
         Day day;
         Gson gson = new Gson();
         String json;
-        DatabaseHelper helper = new DatabaseHelper(context);
-        if(prefs.getBoolean("Type_"+widgetID, false))
-            json=helper.getPupilByDate("current");
+        DatabaseHelper helper = DatabaseHelper.getInstance(context);
+        if (prefs.getBoolean("Type_" + widgetID, false))
+            json = helper.getPupilByDate("current");
         else
-            json=helper.getTeacherByDate("current");
+            json = helper.getTeacherByDate("current");
         day = gson.fromJson(json, Day.class);
-        if(day!=null)
-        for(Group group: day.getGroups())
-        {
-            if(group.getTitle().equals(prefs.getString("Title_"+widgetID, "Error")))
-            {
-                this.group=group;
-                break;
-            }
+        this.group = new Group();
+        if (json != null && day != null) {
+            ArrayList<Group> groups = day.getGroups();
+            if (groups != null && !groups.isEmpty())
+                for (Group group : groups) {
+                    if (group != null && group.getTitle() != null)
+                        if (group.getTitle().equals(prefs.getString("Title_" + widgetID, "Error"))) {
+                            Log.d("Debug", "Widget loaded normally");
+                            this.group = group;
+                            break;
+                        }
+                }
         }
-        else
-        {
-            this.group= new Group();
-        }
+
+        if (helper != null)
+            helper.close();
     }
 
     @Override
@@ -83,10 +84,10 @@ public class ListFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-       if(group.getLessons()!=null)
-           return group.getLessons().size();
-       else
-           return 0;
+        if (group.getLessons() != null)
+            return group.getLessons().size();
+        else
+            return 0;
     }
 
     @Override

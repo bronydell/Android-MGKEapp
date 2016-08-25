@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by Bronydell on 8/10/16.
  */
-public class Expiriments {
+public class Experiments {
 
     public String ParseSubGroups(String lesson, String rooms) {
         lesson.trim();

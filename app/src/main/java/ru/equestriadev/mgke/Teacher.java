@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -29,12 +28,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-import ru.equestriadev.netwerking.RequestDates;
-import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Month;
+import ru.equestriadev.netwerking.RequestDates;
+import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.widget.HomeWidget;
 
 
@@ -45,13 +44,13 @@ public class Teacher extends Fragment {
     SwipeRefreshLayout refresher;
 
 
+    public Teacher() {
+        // Required empty public constructor
+    }
+
     public static Teacher newInstance() {
         Teacher fragment = new Teacher();
         return fragment;
-    }
-
-    public Teacher() {
-        // Required empty public constructor
     }
 
     @Override
@@ -69,7 +68,7 @@ public class Teacher extends Fragment {
 
 
         refresher = (SwipeRefreshLayout) getView().findViewById(R.id.refreshTeacher);
-        refresher.setColorSchemeColors(R.color.colorPrimary);
+        refresher.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -138,7 +137,7 @@ public class Teacher extends Fragment {
         SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         if(refresher!=null)
             refresher.setRefreshing(false);
-        if (day.getGroups() != null) {
+        if (day != null && day.getGroups() != null) {
             for (int i = 0; i < day.getGroups().size(); i++) {
                 day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }

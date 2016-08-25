@@ -57,7 +57,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
     protected void onPreExecute() {
         super.onPreExecute();
         nowDay = new Day();
-        helper = new DatabaseHelper(context);
+        helper = DatabaseHelper.getInstance(context);
     }
 
     @Override
@@ -88,6 +88,8 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         else
             teacher.setAdapter(nowDay);
         updateWidget();
+        if (helper != null)
+            helper.close();
     }
 
     private Day getOnline() {

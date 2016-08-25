@@ -21,9 +21,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.idunnololz.widgets.AnimatedExpandableListView;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -31,14 +28,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-import it.sephiroth.android.library.widget.ExpandableHListView;
-import ru.equestriadev.arch.PairDate;
-import ru.equestriadev.netwerking.RequestDates;
-import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Month;
+import ru.equestriadev.arch.PairDate;
+import ru.equestriadev.netwerking.RequestDates;
+import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.widget.HomeWidget;
 
 
@@ -48,7 +44,6 @@ public class Pupil extends Fragment {
     AnimatedExpandableListView listView;
     DatabaseHelper helper;
     SwipeRefreshLayout refresher;
-
 
 
     public Pupil() {
@@ -73,6 +68,7 @@ public class Pupil extends Fragment {
         //Init ListView
         listView = (AnimatedExpandableListView) getView().findViewById(R.id.pupilList);
         refresher = (SwipeRefreshLayout) getView().findViewById(R.id.refreshPupil);
+        refresher.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -80,7 +76,7 @@ public class Pupil extends Fragment {
                 executeNetworking(true);
             }
         });
-        helper = new DatabaseHelper(getContext());
+        helper = DatabaseHelper.getInstance(getContext());
         //Cool feature
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -125,19 +121,28 @@ public class Pupil extends Fragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (helper != null)
+            helper.close();
+    }
 
     public void onTop() {
         listView.smoothScrollToPosition(0);
     }
 
     public void setAdapter(final Day day) {
+
         final Calendar calendar = Calendar.getInstance();
-        if(refresher!=null)
+        if (refresher != null)
             refresher.setRefreshing(false);
-        if (day.getGroups() != null) {
-            SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if (day != null && day.getGroups() != null) {
+            SharedPreferences myPrefs = getContext().
+                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
             for (int i = 0; i < day.getGroups().size(); i++) {
-                day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
+                day.getGroups().get(i).
+                        setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }
             ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             try {
@@ -167,6 +172,7 @@ public class Pupil extends Fragment {
                     return 0;
                 }
             });
+            listView = (AnimatedExpandableListView) getView().findViewById(R.id.pupilList);
             if (listView != null) {
                 adapter = new ExpAdapter(getContext(), day, true);
                 listView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
@@ -199,10 +205,9 @@ public class Pupil extends Fragment {
                 });
                 listView.setAdapter(adapter);
             }
+        } else {
+            Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
         }
-        else {
-                Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
-            }
 
     }
 
@@ -221,9 +226,8 @@ public class Pupil extends Fragment {
     }
 
 
-    public void executeNetworking(boolean forced)
-    {
-        if(refresher!=null)
+    public void executeNetworking(boolean forced) {
+        if (refresher != null)
             refresher.setRefreshing(true);
 
         RequestPairs requestPairs = new RequestPairs();
@@ -232,12 +236,12 @@ public class Pupil extends Fragment {
         requestPairs.execute();
     }
 
-    public void updateWidgets(){
+    public void updateWidgets() {
         Intent intent = new Intent(getContext(), HomeWidget.class);
         intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
         int ids[] = AppWidgetManager.getInstance(getActivity().getApplication()).
                 getAppWidgetIds(new ComponentName(getActivity().getApplication(), HomeWidget.class));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         getContext().sendBroadcast(intent);
     }
 }

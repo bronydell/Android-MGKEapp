@@ -16,7 +16,7 @@ import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Lesson;
 import ru.equestriadev.mgke.R;
-import ru.equestriadev.parsing.Expiriments;
+import ru.equestriadev.parsing.Experiments;
 
 /**
  * Created by Bronydell on 6/8/16.
@@ -120,7 +120,7 @@ public class ExpAdapter extends AnimatedExpandableListView.AnimatedExpandableLis
         }
         TextView textChild = (TextView) convertView.findViewById(R.id.textChild);
         Lesson lesson = day.getGroups().get(groupPosition).getLessons().get(childPosition);
-        Expiriments ex = new Expiriments();
+        Experiments ex = new Experiments();
         textChild.setText(Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + ex.ParseSubGroups(lesson.getLesson(), lesson.getAudience())));
 
         return convertView;
