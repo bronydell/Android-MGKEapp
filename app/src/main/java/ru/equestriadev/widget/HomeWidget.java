@@ -40,7 +40,6 @@ public class HomeWidget extends AppWidgetProvider {
         else
             views.setTextViewText(R.id.appwidget_text, widgetText);
         views.setTextViewText(R.id.appwidget_date, getDate(context, appWidgetId));
-        Log.i("WoW", "Much Doge");
         Intent adapter = new Intent(context, FactoryService.class);
         adapter.setData(Uri.fromParts("content", String.valueOf(appWidgetId), null));
 
@@ -48,6 +47,7 @@ public class HomeWidget extends AppWidgetProvider {
         views.setRemoteAdapter(R.id.listLessons, adapter);
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.listLessons);
     }
 
     static String getDate(Context context, int widgetID) {
@@ -67,14 +67,11 @@ public class HomeWidget extends AppWidgetProvider {
                 Calendar calendar = Calendar.getInstance();
                 Date date = format.parse(day.getDate());
                 calendar.setTime(date);
-                return Month.getMouthNyNumber(calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumberMon(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")";
+                return Month.getMouthNyNumber(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumberMon(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")";
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-
-        if (helper != null)
-            helper.close();
         return "";
     }
 

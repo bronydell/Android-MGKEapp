@@ -73,8 +73,6 @@ public class ListFactory implements RemoteViewsService.RemoteViewsFactory {
                 }
         }
 
-        if (helper != null)
-            helper.close();
     }
 
     @Override

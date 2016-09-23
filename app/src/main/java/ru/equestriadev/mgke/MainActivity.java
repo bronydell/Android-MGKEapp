@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         YandexMetrica.activate(getApplicationContext(), "10b73f7b-e0f2-49dd-b27f-545687ea021e");
         // User tracking
         YandexMetrica.enableActivityAutoTracking(getApplication());
+
         SharedPreferences myPrefs = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         final SharedPreferences.Editor editor = myPrefs.edit();

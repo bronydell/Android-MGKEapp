@@ -8,8 +8,8 @@ android {
         applicationId "ru.equestriadev.mgke"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 25
-        versionName "3.0.6 Release"
+        versionCode 26
+        versionName "3.0.8 Release"
     }
     buildTypes {
         release {
@@ -27,22 +27,26 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
     //Android design stuff
-    compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.android.support:design:24.2.0'
     //Statistics stuff
-    compile 'com.yandex.android:mobmetricalib:2.42'
     //Bottom bar stuff
+    //GSON
+    //Like button stuff
+    //Calendar stuff
+    compile project(':Expander')
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.yandex.android:mobmetricalib:2.42'
     compile 'com.roughike:bottom-bar:2.+'
     compile 'com.ncapdevi:frag-nav:1.0.3'
-    //GSON
     compile 'com.google.code.gson:gson:2.6.2'
-    //Like button stuff
     compile 'com.github.jd-alexander:LikeButton:0.2.0'
     compile 'com.jakewharton:butterknife:7.0.1'
-    //Calendar stuff
     compile 'it.sephiroth.android.library.horizontallistview:hlistview:1.2.2'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile project(':Expander')
+    compile 'com.google.firebase:firebase-messaging:9.6.0'
+    testCompile 'junit:junit:4.12'
 }
+
+
+apply plugin: 'com.google.gms.google-services'

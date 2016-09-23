@@ -31,10 +31,12 @@ import java.util.Date;
 import ru.equestriadev.adapter.ExpAdapter;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Group;
+import ru.equestriadev.arch.Lesson;
 import ru.equestriadev.arch.Month;
 import ru.equestriadev.arch.PairDate;
 import ru.equestriadev.netwerking.RequestDates;
 import ru.equestriadev.netwerking.RequestPairs;
+import ru.equestriadev.parsing.Experiments;
 import ru.equestriadev.widget.HomeWidget;
 
 
@@ -124,12 +126,16 @@ public class Pupil extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (helper != null)
-            helper.close();
     }
 
     public void onTop() {
-        listView.smoothScrollToPosition(0);
+        if (listView != null) listView.smoothScrollToPosition(0);
+    }
+
+    public Day getAdpaterDay() {
+        if (adapter != null)
+            return adapter.getDay();
+        return null;
     }
 
     public void setAdapter(final Day day) {
@@ -137,9 +143,11 @@ public class Pupil extends Fragment {
         final Calendar calendar = Calendar.getInstance();
         if (refresher != null)
             refresher.setRefreshing(false);
-        if (day != null && day.getGroups() != null) {
-            SharedPreferences myPrefs = getContext().
+        SharedPreferences myPrefs = null;
+        if (getActivity() != null)
+            myPrefs = getActivity().
                     getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if (day != null && day.getGroups() != null && myPrefs != null) {
             for (int i = 0; i < day.getGroups().size(); i++) {
                 day.getGroups().get(i).
                         setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
@@ -172,7 +180,8 @@ public class Pupil extends Fragment {
                     return 0;
                 }
             });
-            listView = (AnimatedExpandableListView) getView().findViewById(R.id.pupilList);
+            if (getView() != null)
+                listView = (AnimatedExpandableListView) getView().findViewById(R.id.pupilList);
             if (listView != null) {
                 adapter = new ExpAdapter(getContext(), day, true);
                 listView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
@@ -190,13 +199,14 @@ public class Pupil extends Fragment {
                     @Override
                     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                         PairDate dater = new PairDate();
-                        if (calendar.get(Calendar.DAY_OF_WEEK) == 7) {
+                        Lesson lesson = day.getGroups().get(groupPosition).getLessons().get(childPosition);
+                        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                             Toast.makeText(getContext(),
-                                    dater.getSunday(day.getGroups().get(groupPosition).getLessons().get(childPosition).getNumber()),
+                                    dater.getSaturday(lesson.getNumber(), Experiments.isKn(lesson.getAudience())),
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(),
-                                    dater.getAnotherOne(day.getGroups().get(groupPosition).getLessons().get(childPosition).getNumber()),
+                                    dater.getAnotherOne(lesson.getNumber(), Experiments.isKn(lesson.getAudience())),
                                     Toast.LENGTH_SHORT).show();
 
                         }

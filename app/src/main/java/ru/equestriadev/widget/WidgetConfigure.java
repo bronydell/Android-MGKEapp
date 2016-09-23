@@ -110,8 +110,6 @@ public class WidgetConfigure extends Activity {
         {
             Toast.makeText(getApplicationContext(), "Что-то пошло не так", Toast.LENGTH_SHORT).show();
         }
-        if (helper != null)
-            helper.close();
     }
 
     private void makeAWish()

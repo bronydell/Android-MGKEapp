@@ -3,17 +3,21 @@ package ru.equestriadev.netwerking;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import ru.equestriadev.arch.Day;
 import ru.equestriadev.datetimepicker.date.DatePickerDialog;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.Pupil;
@@ -32,25 +36,23 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     private Pupil pupil;
 
     private boolean isPupil;
-    public void setTeacherFragment(Teacher teacher)
-    {
+
+    public void setTeacherFragment(Teacher teacher) {
         this.teacher = teacher;
         context = teacher.getContext();
-        baseURL+="getTeacherDates";
+        baseURL += "getTeacherDates";
         isPupil = false;
     }
 
 
-    public void setPupilFragment(Pupil pupil)
-    {
+    public void setPupilFragment(Pupil pupil) {
         this.pupil = pupil;
         context = pupil.getContext();
-        baseURL+="getStudentDates";
+        baseURL += "getStudentDates";
         isPupil = true;
     }
 
-    private boolean isOnline()
-    {
+    private boolean isOnline() {
         try {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             return cm.getActiveNetworkInfo().isConnectedOrConnecting();
@@ -60,8 +62,7 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     }
 
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
 
         super.onPreExecute();
     }
@@ -79,10 +80,22 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
+        Day dd = null;
+        if (!isPupil)
+            dd = teacher.getAdpaterDay();
+        else
+            dd = pupil.getAdpaterDay();
         Calendar calendar = Calendar.getInstance();
-        if(days.size()>0) {
-            calendar = days.get(days.size() - 1);
+        if (dd != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                calendar.setTime(sdf.parse(dd.getDate()));
+            } catch (ParseException e) {
+                Log.e("Error", "Error parse current day");
+            }
+        }
 
+        if (days.size() > 0) {
             final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
 
             datePickerDialog.setFirstDayOfWeek(2);
@@ -92,27 +105,21 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
             else if (teacher != null)
                 datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
             datePickerDialog.setOnDateSetListener(this);
-        }
-        else
-        {
+        } else {
             Toast.makeText(context, "Нет доступных дат. Включите интернет!", Toast.LENGTH_LONG).show();
         }
     }
 
-    public List<Calendar> getOffline()
-    {
+    public List<Calendar> getOffline() {
         DatabaseHelper helper = DatabaseHelper.getInstance(context);
 
         List<Calendar> objs = helper.getAllDates(isPupil);
 
-        helper.close();
         return objs;
     }
 
 
-
-    public List<Calendar> getOnline()
-    {
+    public List<Calendar> getOnline() {
         try {
             String response = NetworkMethods.readUrl(baseURL);
             JSONObject obj = new JSONObject(response);
@@ -137,7 +144,7 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
         RequestPairs pairs = new RequestPairs();
 
-        if(!isPupil)
+        if (!isPupil)
             pairs.setTeacherFragment(teacher);
         else
             pairs.setPupilFragment(pupil);

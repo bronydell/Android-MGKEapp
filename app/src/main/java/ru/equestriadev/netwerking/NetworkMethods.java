@@ -20,9 +20,9 @@ public class NetworkMethods {
                 buffer.append(chars, 0, read);
 
             return buffer.toString();
-        } finally {
-            if (reader != null)
-                reader.close();
+        }
+        catch (Exception ex){
+            return null;
         }
     }
 }

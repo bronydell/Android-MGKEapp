@@ -58,8 +58,6 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
         {
             addNotification();
         }
-        if (helper != null)
-            helper.close();
     }
 
     private Day getOnline(boolean isPupil) {

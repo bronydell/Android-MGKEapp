@@ -121,8 +121,7 @@ public class Teacher extends Fragment {
     }
 
 
-    public void executeNetworking(boolean isForced)
-    {
+    public void executeNetworking(boolean isForced) {
         RequestPairs requestPairs = new RequestPairs();
         requestPairs.setTeacherFragment(this);
         requestPairs.setForced(isForced);
@@ -130,29 +129,40 @@ public class Teacher extends Fragment {
     }
 
     public void onTop() {
-        listView.smoothScrollToPosition(0);
+        if (listView != null)
+            listView.smoothScrollToPosition(0);
+    }
+
+    public Day getAdpaterDay() {
+        if (adapter != null)
+            return adapter.getDay();
+        return null;
     }
 
     public void setAdapter(Day day) {
         SharedPreferences myPrefs = getContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        if(refresher!=null)
+        if (refresher != null)
             refresher.setRefreshing(false);
-        if (day != null && day.getGroups() != null) {
+        if (getActivity() != null)
+            myPrefs = getActivity().
+                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        if (day != null && day.getGroups() != null && myPrefs != null) {
             for (int i = 0; i < day.getGroups().size(); i++) {
-                day.getGroups().get(i).setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
+                day.getGroups().get(i).
+                        setIsFavorite(myPrefs.getBoolean(day.getGroups().get(i).getTitle(), false));
             }
-            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date dateStr = formatter.parse(day.getDate());
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(dateStr);
-                if(actionBar!=null) {
+                if (actionBar != null) {
                     getActivity().setTitle("Преподаватели");
                     actionBar.setSubtitle(Month.getMouthNyNumber(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " (" + Month.getDatNyNumberMon(calendar.get(Calendar.DAY_OF_WEEK) - 1) + ")");
                 }
-                } catch (ParseException e) {
-                if(actionBar!=null)
+            } catch (ParseException e) {
+                if (actionBar != null)
                     actionBar.setSubtitle("???");
                 e.printStackTrace();
             }
@@ -173,7 +183,7 @@ public class Teacher extends Fragment {
                 }
             });
             adapter = new ExpAdapter(getContext(), day, false);
-            if(listView!=null) {
+            if (listView != null) {
                 listView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                     @Override
                     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
@@ -185,20 +195,19 @@ public class Teacher extends Fragment {
                         return true;
                     }
                 });
-                    listView.setAdapter(adapter);
+                listView.setAdapter(adapter);
             }
-        }
-        else
+        } else
             Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
 
     }
 
 
-    public void updateWidgets(){
+    public void updateWidgets() {
         Intent intent = new Intent(getContext(), HomeWidget.class);
         intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
         int ids[] = AppWidgetManager.getInstance(getActivity().getApplication()).getAppWidgetIds(new ComponentName(getActivity().getApplication(), HomeWidget.class));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         getContext().sendBroadcast(intent);
     }
 

@@ -28,4 +28,10 @@ public class Experiments {
         }
     }
 
+    public static boolean isKn(String rooms){
+        if(rooms.startsWith("Кн"))
+            return true;
+        return false;
+    }
+
 }

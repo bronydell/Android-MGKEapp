@@ -67,7 +67,12 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
             isNeedToSave = false;
         }
         //If last update was 1 hours ago or later
-        if ((isForced && isOnline()) || (isOnline() && getUpdate() + 1000 * 60 * 60 < getCurrent())) {
+        String off = helper.getPupilByDate("current");
+        if (!isPupil)
+                off = helper.getTeacherByDate("current");
+
+        if ((off == null && isOnline()) || (off.equals("") && isOnline()) ||
+                (isForced && isOnline()) || (isOnline() && getUpdate() + 1000 * 60 * 60 < getCurrent())) {
             nowDay = getOnline();
         } else {
             if (params.length > 0)
@@ -88,8 +93,6 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         else
             teacher.setAdapter(nowDay);
         updateWidget();
-        if (helper != null)
-            helper.close();
     }
 
     private Day getOnline() {
