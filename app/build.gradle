@@ -44,9 +44,11 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'it.sephiroth.android.library.horizontallistview:hlistview:1.2.2'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.google.firebase:firebase-messaging:9.6.0'
+    // NOTE: U can uncomment it for build. It'll add Firebase support
+    //compile 'com.google.firebase:firebase-messaging:9.6.0'
     testCompile 'junit:junit:4.12'
 }
 
 
-apply plugin: 'com.google.gms.google-services'
+// NOTE: U can uncomment it for build. It'll add Firebase support
+//apply plugin: 'com.google.gms.google-services'
