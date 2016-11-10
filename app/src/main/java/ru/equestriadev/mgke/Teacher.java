@@ -68,7 +68,7 @@ public class Teacher extends Fragment {
 
 
         refresher = (SwipeRefreshLayout) getView().findViewById(R.id.refreshTeacher);
-        refresher.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        if (getActivity() != null && getActivity().getApplicationContext() != null)
         refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -197,7 +197,7 @@ public class Teacher extends Fragment {
                 });
                 listView.setAdapter(adapter);
             }
-        } else
+        } else if (getActivity() != null && getActivity().getApplicationContext() != null)
             Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
 
     }

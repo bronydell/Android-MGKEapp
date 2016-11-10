@@ -42,10 +42,9 @@ import ru.equestriadev.widget.HomeWidget;
 
 public class Pupil extends Fragment {
 
-    ExpAdapter adapter;
-    AnimatedExpandableListView listView;
-    DatabaseHelper helper;
-    SwipeRefreshLayout refresher;
+    private ExpAdapter adapter;
+    private AnimatedExpandableListView listView;
+    private SwipeRefreshLayout refresher;
 
 
     public Pupil() {
@@ -78,7 +77,6 @@ public class Pupil extends Fragment {
                 executeNetworking(true);
             }
         });
-        helper = DatabaseHelper.getInstance(getContext());
         //Cool feature
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -216,7 +214,8 @@ public class Pupil extends Fragment {
                 listView.setAdapter(adapter);
             }
         } else {
-            Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
+            if (getActivity() != null && getActivity().getApplicationContext() != null)
+                Toast.makeText(getActivity().getApplicationContext(), "Включите интернет", Toast.LENGTH_SHORT).show();
         }
 
     }

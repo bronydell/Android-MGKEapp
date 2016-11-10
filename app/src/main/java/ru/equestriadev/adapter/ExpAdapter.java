@@ -30,7 +30,7 @@ public class ExpAdapter extends AnimatedExpandableListView.AnimatedExpandableLis
     public ExpAdapter(Context context, Day day, boolean isPupil) {
         mContext = context;
         this.day = day;
-        this.isPupil=isPupil;
+        this.isPupil = isPupil;
     }
 
     public Group getGroup(int groupPosition) {
@@ -79,8 +79,8 @@ public class ExpAdapter extends AnimatedExpandableListView.AnimatedExpandableLis
 
 
         TextView textGroup = (TextView) convertView.findViewById(R.id.title);
-        if(isPupil)
-            textGroup.setText("Группа "+day.getGroups().get(groupPosition).getTitle());
+        if (isPupil)
+            textGroup.setText("Группа " + day.getGroups().get(groupPosition).getTitle());
         else
             textGroup.setText(day.getGroups().get(groupPosition).getTitle());
         final LikeButton button = (LikeButton) convertView.findViewById(R.id.fave);
@@ -121,11 +121,10 @@ public class ExpAdapter extends AnimatedExpandableListView.AnimatedExpandableLis
         TextView textChild = (TextView) convertView.findViewById(R.id.textChild);
         Lesson lesson = day.getGroups().get(groupPosition).getLessons().get(childPosition);
         Experiments ex = new Experiments();
-        textChild.setText(Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + ex.ParseSubGroups(lesson.getLesson(), lesson.getAudience())));
+        textChild.setText(Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + Experiments.ParseSubGroups(lesson.getLesson(), lesson.getAudience())));
 
         return convertView;
     }
-
 
 
     @Override

@@ -1,5 +1,6 @@
 package ru.equestriadev.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -7,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.google.gson.Gson;
@@ -20,6 +20,7 @@ import java.util.Date;
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.arch.Month;
 import ru.equestriadev.mgke.DatabaseHelper;
+import ru.equestriadev.mgke.MainActivity;
 import ru.equestriadev.mgke.R;
 
 /**
@@ -42,6 +43,12 @@ public class HomeWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidget_date, getDate(context, appWidgetId));
         Intent adapter = new Intent(context, FactoryService.class);
         adapter.setData(Uri.fromParts("content", String.valueOf(appWidgetId), null));
+
+        Intent configIntent = new Intent(context, MainActivity.class);
+
+        PendingIntent configPendingIntent = PendingIntent.getActivity(context, 0, configIntent, 0);
+
+        views.setOnClickPendingIntent(R.id.relativeLayout, configPendingIntent);
 
         adapter.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         views.setRemoteAdapter(R.id.listLessons, adapter);
@@ -78,6 +85,7 @@ public class HomeWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
+
         final int N = appWidgetIds.length;
         for (int i = 0; i < N; i++) {
             updateAppWidget(context, appWidgetManager, appWidgetIds[i]);

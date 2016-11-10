@@ -49,6 +49,9 @@ public class UpdateService extends Service {
             NetworkFetch fetch = new NetworkFetch();
             fetch.setContext(getApplicationContext());
             fetch.execute();
+
         }
     }
+
+
 }

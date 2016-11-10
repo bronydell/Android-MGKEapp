@@ -2,11 +2,14 @@ package ru.equestriadev.notify;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -17,6 +20,7 @@ import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.MainActivity;
 import ru.equestriadev.mgke.R;
 import ru.equestriadev.netwerking.NetworkMethods;
+import ru.equestriadev.widget.HomeWidget;
 
 /**
  * Created by Bronydell on 6/17/16.
@@ -57,6 +61,11 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
         if(isUpdated)
         {
             addNotification();
+            try {
+                updateWidgets();
+            } catch (Exception ex) {
+                Log.e("MSCE", ex.toString());
+            }
         }
     }
 
@@ -111,7 +120,9 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_event)
                         .setContentTitle("Расписание обновлено")
+                        .setAutoCancel(true)
                         .setContentText("Загружено свежее расписание!");
+
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent,
@@ -121,6 +132,15 @@ public class NetworkFetch extends AsyncTask<String, Void, Void> {
         // Add as notification
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(228, builder.build());
+    }
+
+    public void updateWidgets() {
+        Intent intent = new Intent(context, HomeWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(context).
+                getAppWidgetIds(new ComponentName(context, HomeWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        context.sendBroadcast(intent);
     }
 
 

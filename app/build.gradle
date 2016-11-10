@@ -8,8 +8,8 @@ android {
         applicationId "ru.equestriadev.mgke"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 26
-        versionName "3.0.8 Release"
+        versionCode 27
+        versionName "3.1 Release"
     }
     buildTypes {
         release {
@@ -34,9 +34,11 @@ dependencies {
     //Like button stuff
     //Calendar stuff
     compile project(':Expander')
+    // NOTE: U can uncomment it for build. It'll add Firebase support
+    //compile 'com.google.firebase:firebase-messaging:9.6.0'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
-    compile 'com.yandex.android:mobmetricalib:2.42'
+    compile 'com.yandex.android:mobmetricalib:2.51'
     compile 'com.roughike:bottom-bar:2.+'
     compile 'com.ncapdevi:frag-nav:1.0.3'
     compile 'com.google.code.gson:gson:2.6.2'
@@ -44,11 +46,11 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'it.sephiroth.android.library.horizontallistview:hlistview:1.2.2'
     compile 'com.nineoldandroids:library:2.4.0'
-    // NOTE: U can uncomment it for build. It'll add Firebase support
-    //compile 'com.google.firebase:firebase-messaging:9.6.0'
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
     testCompile 'junit:junit:4.12'
 }
 
-
 // NOTE: U can uncomment it for build. It'll add Firebase support
 //apply plugin: 'com.google.gms.google-services'
+
+apply plugin: 'com.google.gms.google-services'

@@ -18,6 +18,7 @@ import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Lesson;
 import ru.equestriadev.mgke.DatabaseHelper;
 import ru.equestriadev.mgke.R;
+import ru.equestriadev.parsing.Experiments;
 
 /**
  * Created by Bronydell on 6/16/16.
@@ -93,7 +94,7 @@ public class ListFactory implements RemoteViewsService.RemoteViewsFactory {
         RemoteViews rView = new RemoteViews(context.getPackageName(),
                 R.layout.widget_list_item);
         Lesson lesson = group.getLessons().get(position);
-        rView.setTextViewText(R.id.lessonTitle, Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + lesson.getLesson() + " в кабинете(кабинетах): <b>" + lesson.getAudience() + "</b>"));
+        rView.setTextViewText(R.id.lessonTitle, Html.fromHtml("<b>" + lesson.getNumber() + "</b>. " + Experiments.ParseSubGroups(lesson.getLesson(), lesson.getAudience())));
         return rView;
     }
 

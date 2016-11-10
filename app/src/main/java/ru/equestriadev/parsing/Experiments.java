@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Experiments {
 
-    public String ParseSubGroups(String lesson, String rooms) {
+    public static String ParseSubGroups(String lesson, String rooms) {
         lesson.trim();
         String numbers = lesson.replaceAll("[^-?0-9]+", " ");
         List<String> search = Arrays.asList(numbers.trim().split(" "));
@@ -29,9 +29,7 @@ public class Experiments {
     }
 
     public static boolean isKn(String rooms){
-        if(rooms.startsWith("Кн"))
-            return true;
-        return false;
+        return rooms.startsWith("Кн");
     }
 
 }
