@@ -15,29 +15,26 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import ru.equestriadev.arch.Day;
 import ru.equestriadev.datetimepicker.date.DatePickerDialog;
+import ru.equestriadev.mgke.BaseActivity;
 import ru.equestriadev.mgke.DatabaseHelper;
-import ru.equestriadev.mgke.Pupil;
-import ru.equestriadev.mgke.Teacher;
 
 /**
  * Created by Bronydell on 6/14/16.
  */
 public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePickerDialog.OnDateSetListener {
 
-    String baseURL = "http://s1.al3xable.me/method/";
+    static DatePickerDialog datePickerDialog;
+    private String baseURL = "https://msce.bronydell.xyz/method/";
     private List<Calendar> days = new ArrayList<Calendar>();
-
     private Context context;
-    private Teacher teacher;
-    private Pupil pupil;
-
+    private BaseActivity teacher;
+    private BaseActivity pupil;
     private boolean isPupil;
 
-    public void setTeacherFragment(Teacher teacher) {
+    public void setTeacherFragment(BaseActivity teacher) {
         this.teacher = teacher;
         context = teacher.getContext();
         baseURL += "getTeacherDates";
@@ -45,7 +42,7 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
     }
 
 
-    public void setPupilFragment(Pupil pupil) {
+    public void setPupilFragment(BaseActivity pupil) {
         this.pupil = pupil;
         context = pupil.getContext();
         baseURL += "getStudentDates";
@@ -82,9 +79,9 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
         super.onPostExecute(result);
         Day dd = null;
         if (!isPupil)
-            dd = teacher.getAdpaterDay();
+            dd = teacher.getAdapterDay();
         else
-            dd = pupil.getAdpaterDay();
+            dd = pupil.getAdapterDay();
         Calendar calendar = Calendar.getInstance();
         if (dd != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -96,15 +93,19 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
         }
 
         if (days.size() > 0) {
-            final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
+            if (datePickerDialog != null && !datePickerDialog.isVisible())
+                datePickerDialog = null;
+            if (datePickerDialog == null) {
+                datePickerDialog = DatePickerDialog.newInstance(null, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false, days);
 
-            datePickerDialog.setFirstDayOfWeek(2);
-            datePickerDialog.setCloseOnSingleTapDay(false);
-            if (pupil != null)
-                datePickerDialog.show(pupil.getFragmentManager(), "DATE_MANAGER");
-            else if (teacher != null)
-                datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
-            datePickerDialog.setOnDateSetListener(this);
+                datePickerDialog.setFirstDayOfWeek(2);
+                datePickerDialog.setCloseOnSingleTapDay(false);
+                if (pupil != null)
+                    datePickerDialog.show(pupil.getFragmentManager(), "DATE_MANAGER");
+                else if (teacher != null)
+                    datePickerDialog.show(teacher.getFragmentManager(), "DATE_MANAGER");
+                datePickerDialog.setOnDateSetListener(this);
+            }
         } else {
             Toast.makeText(context, "Нет доступных дат. Включите интернет!", Toast.LENGTH_LONG).show();
         }
@@ -153,6 +154,7 @@ public class RequestDates extends AsyncTask<Void, Void, Void> implements DatePic
         date.setDate(day);
         date.setMonth(month);
         date.setYear(year - 1900);
+        RequestDates.datePickerDialog = null;
         pairs.execute(format.format(date));
     }
 

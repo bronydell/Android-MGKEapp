@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private final int INDEX_TEACHER = FragNavController.TAB2;
     private BottomBar mBottomBar;
     private FragNavController mNavController;
-    private Pupil pupilFragment;
-    private Teacher teacherFragment;
+    private BaseActivity pupilFragment;
+    private BaseActivity teacherFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,17 +67,17 @@ public class MainActivity extends AppCompatActivity {
             //Tab clicker listiner
             @Override
             public void onTabSelected(@IdRes int tabId) {
-                switch (tabId)
-                {
+                switch (tabId) {
+
 
                     case  R.id.teacher:
                         editor.putInt("State", 1);
-                        editor.commit();
+                        editor.apply();
                         mNavController.switchTab(INDEX_TEACHER);
                         break;
                     case  R.id.pupil:
                         editor.putInt("State", 0);
-                        editor.commit();
+                        editor.apply();
                         mNavController.switchTab(INDEX_STUDENT);
                         break;
                 }
@@ -108,7 +108,9 @@ public class MainActivity extends AppCompatActivity {
 
         List<Fragment> fragments = new ArrayList<>(3);
         pupilFragment = Pupil.newInstance();
+        pupilFragment.setFragmentName("Учащимся");
         teacherFragment = Teacher.newInstance();
+        teacherFragment.setFragmentName("Преподавателям");
         fragments.add(pupilFragment);
         fragments.add(teacherFragment);
 
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     startService(new Intent(this, UpdateService.class));
                 }
                 editor.putBoolean("Auto", item.isChecked());
-                editor.commit();
+                editor.apply();
                 return true;
             case R.id.about:
                 showAbout();
@@ -225,10 +227,10 @@ public class MainActivity extends AppCompatActivity {
         final CharSequence[] items = {
                 "Кнорина на день",
                 "Казинца на день",
-                "Для преподователей на день",
+                "Для преподавателей на день",
                 "Кнорина на неделю",
                 "Казинца на неделю",
-                "Для преподователей на неделю",
+                "Для преподавателей на неделю",
         };
 
         final String[] url = {

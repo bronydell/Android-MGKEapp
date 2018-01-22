@@ -13,9 +13,8 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import ru.equestriadev.arch.Day;
+import ru.equestriadev.mgke.BaseActivity;
 import ru.equestriadev.mgke.DatabaseHelper;
-import ru.equestriadev.mgke.Pupil;
-import ru.equestriadev.mgke.Teacher;
 
 /**
  * Created by Bronydell on 6/14/16.
@@ -23,16 +22,17 @@ import ru.equestriadev.mgke.Teacher;
 public class RequestPairs extends AsyncTask<String, Void, Void> {
 
 
-    String baseURL = "http://s1.al3xable.me/method/";
-    private Teacher teacher;
+    private String baseURL = "https://msce.bronydell.xyz/method/";
+    private BaseActivity teacher;
     private boolean isNeedToSave = true;
-    private Pupil pupil;
+    private BaseActivity pupil;
     private Context context;
     private Day nowDay;
     private DatabaseHelper helper;
     private boolean isPupil;
     private boolean isForced = true;
-    public void setTeacherFragment(Teacher teacher)
+
+    public void setTeacherFragment(BaseActivity teacher)
     {
         this.teacher = teacher;
         context = teacher.getContext();
@@ -40,7 +40,7 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
         isPupil = false;
     }
 
-    public void setPupilFragment(Pupil pupil)
+    public void setPupilFragment(BaseActivity pupil)
     {
         this.pupil = pupil;
         context = pupil.getContext();
@@ -202,8 +202,8 @@ public class RequestPairs extends AsyncTask<String, Void, Void> {
     public void updateWidget()
     {
         if(pupil!=null)
-            pupil.updateWidgets();
+            pupil.updateWidgets(pupil.getActivity());
         else if(teacher!=null)
-            teacher.updateWidgets();
+            teacher.updateWidgets(teacher.getActivity());
     }
 }

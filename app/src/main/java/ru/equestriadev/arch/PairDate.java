@@ -5,11 +5,11 @@ package ru.equestriadev.arch;
  */
 public class PairDate {
     private String[] descriptions_nonSat = {
-            "8:30 - 9:15\n9:25 - 10:10",
-            "10:20 - 11:05\n11:25 - 12:10",
-            "12:30 - 13:15\n13:25 - 14:10",
-            "14:20 - 15:05\n15:15 - 16:00",
-            "16:10 - 16:55\n17:00 - 17:45"
+            "9:00 - 9:45\n9:55 - 10:40",
+            "10:50 - 11:35\n11:55 - 12:40",
+            "13:00 - 13:45\n13:55 - 14:40",
+            "14:50 - 15:35\n15:45 - 16:30",
+            "16:40 - 17:25\n17:30 - 18:15"
     };
 
     private String[] descriptions_Sat_kn = {
@@ -28,10 +28,10 @@ public class PairDate {
     };
 
     private String[] descriptions_Sat = {
-            "8:30 - 9:50",
-            "10:00 - 10:45\n11:00 - 11:45",
-            "12:00 - 13:20",
-            "13:30 - 14:50"
+            "9:00 - 10:20",
+            "10:40 - 11:25\n11:45 - 12:30",
+            "12:40 - 14:00",
+            "14:10 - 15:30"
     };
 
     public String getSaturday(int pair, boolean isKn) {

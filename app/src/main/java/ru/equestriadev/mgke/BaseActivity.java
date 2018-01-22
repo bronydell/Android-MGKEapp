@@ -1,13 +1,25 @@
 package ru.equestriadev.mgke;
 
+import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.idunnololz.widgets.AnimatedExpandableListView;
 
 import java.text.ParseException;
@@ -23,16 +35,107 @@ import ru.equestriadev.arch.Group;
 import ru.equestriadev.arch.Lesson;
 import ru.equestriadev.arch.Month;
 import ru.equestriadev.arch.PairDate;
-import ru.equestriadev.netwerking.RequestDates;
-import ru.equestriadev.netwerking.RequestPairs;
 import ru.equestriadev.parsing.Experiments;
+import ru.equestriadev.widget.HomeWidget;
+
+/**
+ * Created by Bronydell on 1/22/18.
+ */
+
+public class BaseActivity extends Fragment implements IBrowser {
+
+    protected ExpAdapter adapter;
+    protected AnimatedExpandableListView listView;
+    protected SwipeRefreshLayout refresher;
+
+    protected String activityTitle;
+
+    public BaseActivity() {
+        // Required empty public constructor
+    }
+
+    public static BaseActivity newInstance() {
+        return new BaseActivity();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
 
-public class Pupil extends BaseActivity {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //Init ListView
+        listView = (AnimatedExpandableListView) getView().findViewById(R.id.pupilList);
+        refresher = (SwipeRefreshLayout) getView().findViewById(R.id.refreshPupil);
+        refresher.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresher.setRefreshing(true);
+                executeNetworking(true);
+            }
+        });
+        //Cool feature
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int offset = position - listView.getFirstVisiblePosition();
+                if (listView.getFirstVisiblePosition() > 0)
+                    offset -= 1;
 
+                listView.smoothScrollByOffset(offset);
+            }
+        });
 
-    public static Pupil newInstance() {
-        return new Pupil();
+        getActivity().setTitle(activityTitle);
+        //Update content!
+        if (savedInstanceState != null) {
+            Gson gson = new Gson();
+            Day day = gson.fromJson(savedInstanceState.getString("content"), Day.class);
+            if (day != null) {
+                setAdapter(day);
+                listView.onRestoreInstanceState(savedInstanceState.getParcelable("list"));
+            } else
+                executeNetworking(false);
+        } else {
+            executeNetworking(false);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_pupil, container, false);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveState) {
+        super.onSaveInstanceState(saveState);
+        Gson gson = new Gson();
+        if (adapter != null) {
+            saveState.putString("content", gson.toJson(adapter.getDay()));
+            saveState.putParcelable("list", listView.onSaveInstanceState());
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    public void onTop() {
+        if (listView != null) listView.smoothScrollToPosition(0);
+    }
+
+    public Day getAdapterDay() {
+        if (adapter != null)
+            return adapter.getDay();
+        return null;
     }
 
     public void setAdapter(final Day day) {
@@ -121,22 +224,35 @@ public class Pupil extends BaseActivity {
 
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.event:
+                openCalendar();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void setFragmentName(String name) {
+        this.activityTitle = name;
+    }
+
     @Override
     public void openCalendar() {
-        RequestDates requestDates = new RequestDates();
-        requestDates.setTeacherFragment(this);
-        requestDates.execute();
     }
-
 
     public void executeNetworking(boolean forced) {
-        if (refresher != null)
-            refresher.setRefreshing(true);
-
-        RequestPairs requestPairs = new RequestPairs();
-        requestPairs.setPupilFragment(this);
-        requestPairs.setForced(forced);
-        requestPairs.execute();
     }
 
+    public void updateWidgets(Activity activity) {
+        Intent intent = new Intent(activity, HomeWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(activity.getApplication()).
+                getAppWidgetIds(new ComponentName(activity.getApplication(), HomeWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        getContext().sendBroadcast(intent);
+    }
 }

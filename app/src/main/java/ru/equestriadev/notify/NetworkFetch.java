@@ -28,7 +28,7 @@ import ru.equestriadev.widget.HomeWidget;
 public class NetworkFetch extends AsyncTask<String, Void, Void> {
 
 
-    String baseURL = "http://s1.al3xable.me/method/";
+    String baseURL = "https://msce.bronydell.xyz/method/";
     private Context context;
     private DatabaseHelper helper;
     private boolean isUpdated = false;
